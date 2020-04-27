@@ -159,7 +159,7 @@
     <ResourceCompile Include="Paint.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bitmap1.bmp" />
+    <Image Include="hinhchunhat.bmp" />
     <Image Include="Paint.ico" />
     <Image Include="small.ico" />
   </ItemGroup>

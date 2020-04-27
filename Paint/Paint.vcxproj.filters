@@ -45,7 +45,7 @@
     <Image Include="Paint.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="bitmap1.bmp">
+    <Image Include="hinhchunhat.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
