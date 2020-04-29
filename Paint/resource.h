@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by Paint.rc
 //
-#define ID_NAM                          1
 #define IDC_MYICON                      2
 #define IDD_PAINT_DIALOG                102
 #define IDS_APP_TITLE                   103
