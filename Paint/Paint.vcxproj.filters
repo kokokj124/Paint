@@ -48,5 +48,26 @@
     <Image Include="hinhchunhat.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\..\..\Download\Picture\nam.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="hinhelip.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="hinhdagiac.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bitmap2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bitmap3.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bitmap4.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
