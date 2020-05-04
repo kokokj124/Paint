@@ -125,16 +125,17 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
-HWND hwndHinh[3], hwndMauNen[5], hwndGroup[3], hwndCongCu[6], hwndEdit = NULL;
+static HWND hwndHinh[3], hwndMauNen[5], hwndGroup[3], hwndCongCu[6], hwndEdit = NULL;
 static HPEN hPenHinh;
 static LOGPEN lgpen; // khai báo struct cua pen và thiết lập các thuộc tính
 static bool mauVien = false;
 static 	HFONT hFont;
 static 	HDC hdc; // Bien De Lay Handle Cua Ngu Canh Thiet Bi (DC-Divice Context)
 static PAINTSTRUCT ps;
+static COLORREF colorToMau;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static int xRight, yBottom, xLeft, yTop, Hinh = -1, penColor = 0, x, y;
+	static int xRight, yBottom, xLeft, yTop, txtXX, txtYY, Hinh = -1, penColor = 0, x, y;
 	static HBRUSH hBrush[5], hbrushHinh;
 	static int listHinh[] = { 131 , 132 , 133 ,154, 155, 156, 157, 159, 163 ,164, 165, 166, 167, 168};
 	static int hinh11 = 131;
@@ -142,8 +143,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static RECT clientRect;
 	static TEXTMETRIC textMetric;
 	static HRGN bgRgn;
-	static COLORREF colorToMau;
-	DWORD  color[] = { RGB(255,   0,  0),	RGB(255,   255, 51),	RGB(102,   0,  204),	RGB(0, 0, 204),	RGB(0, 0, 0),
+	DWORD  color[] = { RGB(255,   0,  0),	RGB(255,   255, 51),	RGB(143,   0,  109),	RGB(0, 0, 204),	RGB(0, 0, 0),
 	RGB(255, 128, 128),RGB(255, 128, 255),	RGB(255,   0, 255), RGB(255,   0, 128),	RGB(128,   0, 255), RGB(64,   0, 128),
 	RGB(255, 255, 128),	RGB(255, 255,   0),	RGB(255, 128,  64),	RGB(255, 128,   0),	RGB(128,  64,   0),	RGB(128, 128,   0),
 	RGB(0,   0,   0),	RGB(64,   0,   0),	RGB(128,   0,   0),	RGB(128,  64,  64),	RGB(255,   0,   0),  RGB(255, 255, 255),
@@ -231,16 +231,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		xLeft = LOWORD(lParam);
 		yTop = HIWORD(lParam);
-		if (Hinh == 8)
+		if (Hinh == 9)
+		{
+			DestroyWindow(GetDlgItem(hWnd, ID_Edit));
+			txtXX = LOWORD(lParam);
+			txtYY = HIWORD(lParam);
+		}
+		else if (Hinh == 8)
 		{
 			if (flag == true) flag = false;
 			else flag = true;
 		}
-		if (Hinh == 10) {
+		else if (Hinh == 10) {
 			if (flag2 == true) flag2 = false;
 			else flag2 = true;
 		}
-		if (Hinh == 11) {
+		else if (Hinh == 11) {
 			hdc = GetDC(hWnd);
 			COLORREF color = GetPixel(hdc, xLeft, yTop),color1;
 			queue<pair<int, int>> poin;
@@ -292,7 +298,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				ES_AUTOVSCROLL |
 				WS_VSCROLL,
 				xLeft, yTop, xRight - xLeft, yBottom - yTop, hWnd, (HMENU)ID_Edit, NULL, NULL);
-			SetFocus(hwndEdit);
+			//SetFocus(hwndEdit);
 		}
 		ReleaseDC(hWnd, hdc);
 		break;
@@ -307,9 +313,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			switch (HIWORD(wParam))
 			{
 			case EN_KILLFOCUS:
-				DestroyWindow(hwndEdit);
+				TCHAR text[_MAX_PATH];
+				for (int i = 0; i < _MAX_PATH; i++) {
+					text[i] = 2;
+				}
+				SendMessage(GetDlgItem(hWnd, ID_Edit), WM_GETTEXT, sizeof(text) / sizeof(text[0]), (LPARAM)text);
+				hdc = GetDC(hWnd);
+				SelectObject(hdc, hFont);
+				SetTextColor(hdc, colorToMau);
+				int dem = 0;
+				for (int i = 0; i < _MAX_PATH; i++)
+				{
+					if (text[i] != 2) {
+						dem++;
+					}
+					else break;
+				}
+				TextOut(hdc, xLeft, yTop, (LPCWSTR)text, dem);  //hiểm thị tên
+				ReleaseDC(hWnd, hdc);
 				break;
 			}
+			break;
 		case 0:
 			Hinh = 0;
 			break;
@@ -380,13 +404,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case 11:
 			Hinh = 11;
-			//hdc = GetDC(hWnd);
-			//hFont = CreateFont(48*2, 48, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-			//	CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, TEXT("Arial"));
-			//SetTextColor(hdc, RGB(0, 255, 255));
-			//SelectObject(hdc, hFont);
-			//TextOut(hdc, 50, 50, TEXT("NamPRO"), 6);  //hiểm thị tên
-			//ReleaseDC(hWnd, hdc);
 			break;
 		case 12:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, DialogPaint);
@@ -421,7 +438,8 @@ INT_PTR CALLBACK DialogFont(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 	bool kt = false;
 	HWND cboTextFond = NULL, cboTextSize;
 	LPCTSTR textSize[] = { TEXT("5"), TEXT("10"),TEXT("15"),TEXT("20") };
-	LPCTSTR textFont[] = { TEXT("Consolas"), TEXT("Calibri"),TEXT("Gadugi"),TEXT("Arial") };
+	LPCTSTR textFont[] = { TEXT(".VnGothicH"), TEXT(".VnBook-AntiquaH"),TEXT(".VnShelley Allegro"),TEXT("Broadway") };
+	DWORD kieuChuB = FALSE, kieuChuU = FALSE, kieuChuI = FALSE;
 	switch (message)
 	{
 	case WM_INITDIALOG:
@@ -445,17 +463,17 @@ INT_PTR CALLBACK DialogFont(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		case IDC_OK:
 			if (SendMessage(GetDlgItem(hDlg, IDC_B), BM_GETCHECK, 0, 0) == BST_CHECKED)
 			{
-				lgpen.lopnStyle = PS_SOLID;
+				kieuChuB = TRUE;
 				kt = true;
 			}
 			else if (SendMessage(GetDlgItem(hDlg, IDC_I), BM_GETCHECK, 0, 0) == BST_CHECKED)
 			{
-				lgpen.lopnStyle = PS_SOLID;
+				kieuChuI = TRUE;
 				kt = true;
 			}
 			else if (SendMessage(GetDlgItem(hDlg, IDC_U), BM_GETCHECK, 0, 0) == BST_CHECKED)
 			{
-				lgpen.lopnStyle = PS_SOLID;
+				kieuChuU = TRUE;
 				kt = true;
 			}
 			nIndexFondText = SendMessage(GetDlgItem(hDlg, IDC_FontText), CB_GETCURSEL, 0, 0);
@@ -466,23 +484,13 @@ INT_PTR CALLBACK DialogFont(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			}
 			else
 			{
-				TCHAR txtFondText[_MAX_PATH], txtTextSize[_MAX_PATH];
+				TCHAR txtTextSize[_MAX_PATH];
 				hdc = BeginPaint(hDlg, &ps);
 
 				SendMessage(GetDlgItem(hDlg, IDC_TextSize), CB_GETLBTEXT, nIndexTextSize, (LPARAM)txtTextSize);
-				SendMessage(GetDlgItem(hDlg, IDC_TextSize), CB_GETLBTEXT, nIndexTextSize, (LPARAM)txtFondText);
 				int weight = _ttoi(txtTextSize); // convert to int
-				hFont = CreateFont(weight * 2, weight, 0, 0, FW_DONTCARE, FALSE, TRUE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-					CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, txtFondText);
-				SelectObject(hdc, hFont);
-
-
-				hFont = CreateFont(48, 20, 0, 0, FW_DONTCARE, FALSE, TRUE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-					CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, TEXT("Impact"));
-				SetTextColor(hdc, RGB(0, 255, 255));
-				SelectObject(hdc, hFont);
-				TextOut(hdc, 50, 50, TEXT("NamPRO"), 6);  //hiểm thị tên
-
+				hFont = CreateFont(weight * 2, weight, 0, 0, FW_DONTCARE, kieuChuI, kieuChuU, kieuChuB, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+					CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, textFont[nIndexFondText]);
 				EndDialog(hDlg, LOWORD(wParam));
 			}
 			break;
