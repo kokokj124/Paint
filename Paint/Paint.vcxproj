@@ -159,6 +159,7 @@
     <ResourceCompile Include="Paint.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\Download\Picture\nam.jpg" />
     <Image Include="bitmap1.bmp" />
     <Image Include="bitmap10.bmp" />
     <Image Include="bitmap11.bmp" />

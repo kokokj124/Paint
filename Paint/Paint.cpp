@@ -6,6 +6,7 @@
 #include <queue>
 #include <map>
 #include <set>
+#include <commdlg.h>
 using namespace std;
 #define MAX_LOADSTRING 100
 
@@ -154,6 +155,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	RGB(64,   0,  64), };
 	static bool flag = false;
 	static bool flag2 = false;
+
+	static CHOOSECOLOR  cc;
+	static DWORD rgbCurrent;
+
+	static CHOOSEFONT cf;
+	static LOGFONT lf;
+	static HFONT  hfont,hfontPrev;
+	static DWORD rgbPrev;
+
 	switch (message)
 	{
 	case WM_CREATE:
@@ -320,7 +330,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SendMessage(GetDlgItem(hWnd, ID_Edit), WM_GETTEXT, sizeof(text) / sizeof(text[0]), (LPARAM)text);
 				hdc = GetDC(hWnd);
 				SelectObject(hdc, hFont);
+				if(Hinh == 13)
 				SetTextColor(hdc, colorToMau);
+				else
+				SetTextColor(hdc, rgbCurrent);
 				int dem = 0;
 				for (int i = 0; i < _MAX_PATH; i++)
 				{
@@ -413,8 +426,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			Hinh = 13;
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG2), hWnd, DialogFont);
 			break;
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(About), hWnd, About);
+		case IDM_Color:
+			// Initialize CHOOSECOLOR 
+			ZeroMemory(&cc, sizeof(cc));
+			cc.lStructSize = sizeof(cc);
+			cc.hwndOwner = hWnd;
+			cc.lpCustColors = (LPDWORD)color;
+			cc.rgbResult = rgbCurrent;
+			cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+			if (ChooseColor(&cc) == TRUE)
+			{
+				hbrushHinh = CreateSolidBrush(cc.rgbResult);
+				rgbCurrent = cc.rgbResult;
+			}
+			break;
+		case IDM_FONT:
+			ZeroMemory(&cf, sizeof(cf));
+			cf.lStructSize = sizeof(cf);
+			cf.hwndOwner = hWnd;
+			cf.lpLogFont = &lf;
+			cf.rgbColors = rgbCurrent;
+			cf.Flags = CF_SCREENFONTS | CF_EFFECTS;
+
+			if (ChooseFont(&cf) == TRUE)
+			{
+				hFont = CreateFontIndirect(cf.lpLogFont);
+				rgbCurrent = cf.rgbColors;
+				rgbPrev = SetTextColor(hdc, rgbCurrent);
+			}
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
@@ -486,7 +526,6 @@ INT_PTR CALLBACK DialogFont(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			{
 				TCHAR txtTextSize[_MAX_PATH];
 				hdc = BeginPaint(hDlg, &ps);
-
 				SendMessage(GetDlgItem(hDlg, IDC_TextSize), CB_GETLBTEXT, nIndexTextSize, (LPARAM)txtTextSize);
 				int weight = _ttoi(txtTextSize); // convert to int
 				hFont = CreateFont(weight * 2, weight, 0, 0, FW_DONTCARE, kieuChuI, kieuChuU, kieuChuB, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
@@ -581,8 +620,6 @@ INT_PTR CALLBACK DialogPaint(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 	return (INT_PTR)TRUE;
 }
 
-
-// Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
@@ -590,14 +627,51 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
+		break;
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
 		{
+			//MSWebDVD.Zoom(32, 32, 34);
 			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
 		}
 		break;
+	case WM_CLOSE:
+		EndDialog(hDlg, TRUE);
+		break;
+	default:
+		return (INT_PTR)FALSE;
 	}
-	return (INT_PTR)FALSE;
+	return (INT_PTR)TRUE;
 }
+
+//OPENFILENAME ofn;       // common dialog box structure
+//char szFile[260];       // buffer for file name
+//HWND hwnd;              // owner window
+//HANDLE hf;              // file handle
+//
+//// Initialize OPENFILENAME
+//ZeroMemory(&ofn, sizeof(ofn));
+//ofn.lStructSize = sizeof(ofn);
+//ofn.hwndOwner = hwnd;
+//ofn.lpstrFile = szFile;
+//// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+//// use the contents of szFile to initialize itself.
+//ofn.lpstrFile[0] = '\0';
+//ofn.nMaxFile = sizeof(szFile);
+//ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+//ofn.nFilterIndex = 1;
+//ofn.lpstrFileTitle = NULL;
+//ofn.nMaxFileTitle = 0;
+//ofn.lpstrInitialDir = NULL;
+//ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+//
+//// Display the Open dialog box. 
+//
+//if (GetOpenFileName(&ofn) == TRUE)
+//hf = CreateFile(ofn.lpstrFile,
+//	GENERIC_READ,
+//	0,
+//	(LPSECURITY_ATTRIBUTES)NULL,
+//	OPEN_EXISTING,
+//	FILE_ATTRIBUTE_NORMAL,
+//	(HANDLE)NULL);

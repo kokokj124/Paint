@@ -87,6 +87,9 @@
     <Image Include="bitmap11.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\..\..\Download\Picture\nam.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="cursor1.cur">
