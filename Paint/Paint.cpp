@@ -134,6 +134,7 @@ static 	HFONT hFont;
 static 	HDC hdc; // Bien De Lay Handle Cua Ngu Canh Thiet Bi (DC-Divice Context)
 static PAINTSTRUCT ps;
 static COLORREF colorToMau;
+static bool flag3 = false;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static int xRight, yBottom, xLeft, yTop, txtXX, txtYY, Hinh = -1, penColor = 0, x, y;
@@ -330,7 +331,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SendMessage(GetDlgItem(hWnd, ID_Edit), WM_GETTEXT, sizeof(text) / sizeof(text[0]), (LPARAM)text);
 				hdc = GetDC(hWnd);
 				SelectObject(hdc, hFont);
-				if(Hinh == 13)
+				if(flag3 == false)
 				SetTextColor(hdc, colorToMau);
 				else
 				SetTextColor(hdc, rgbCurrent);
@@ -454,6 +455,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				hFont = CreateFontIndirect(cf.lpLogFont);
 				rgbCurrent = cf.rgbColors;
 				rgbPrev = SetTextColor(hdc, rgbCurrent);
+				flag3 = true;
 			}
 			break;
 		case IDM_EXIT:
@@ -530,6 +532,7 @@ INT_PTR CALLBACK DialogFont(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				int weight = _ttoi(txtTextSize); // convert to int
 				hFont = CreateFont(weight * 2, weight, 0, 0, FW_DONTCARE, kieuChuI, kieuChuU, kieuChuB, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
 					CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, textFont[nIndexFondText]);
+				flag3 = false;
 				EndDialog(hDlg, LOWORD(wParam));
 			}
 			break;
